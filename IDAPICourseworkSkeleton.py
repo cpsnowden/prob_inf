@@ -8,40 +8,68 @@ from numpy import *
 #
 # Function to compute the prior distribution of the variable root from the data set
 def Prior(theData, root, noStates):
-    prior = zeros((noStates[root]), float )
+#    prior = zeros((noStates[root]), float )
 # Coursework 1 task 1 should be inserted here
-    
+
+    rootData = theData[:,root]
+    print(noStates[root] + 1)
+    prior = bincount(rootData,None, noStates[root])  / float(rootData.size)
+
 # end of Coursework 1 task 1
     return prior
+
+
 # Function to compute a CPT with parent node varP and xchild node varC from the data array
 # it is assumed that the states are designated by consecutive integers starting with 0
 def CPT(theData, varC, varP, noStates):
     cPT = zeros((noStates[varC], noStates[varP]), float )
-# Coursework 1 task 2 should be inserte4d here
-   
+
+# Coursework 1 task 2 should be inserted here
+
+    for col in xrange(noStates[varP]):
+        n = sum(theData[:,varP]== col)
+        for row in xrange(noStates[varC]):
+            cPT[row,col] = sum(theData[theData[:,varC]==row,varP]==col)
+        cPT[:,col] = cPT[:,col] / n
+
 # end of coursework 1 task 2
     return cPT
+
+
 # Function to calculate the joint probability table of two variables in the data set
 def JPT(theData, varRow, varCol, noStates):
     jPT = zeros((noStates[varRow], noStates[varCol]), float )
-#Coursework 1 task 3 should be inserted here 
+#Coursework 1 task 3 should be inserted here
+
+    for col in xrange(noStates[varCol]):
+        for row in xrange(noStates[varRow]):
+            jPT[row,col] = sum(theData[theData[:,varRow]==row,varCol]==col)
+
+    jPT = jPT / theData.shape[0]
     
 # end of coursework 1 task 3
     return jPT
-#
+
+
 # Function to convert a joint probability table to a conditional probability table
 def JPT2CPT(aJPT):
 #Coursework 1 task 4 should be inserted here 
-   
+    aJPT = aJPT / aJPT.sum(axis=0)
 # coursework 1 taks 4 ends here
     return aJPT
 
-#
+
 # Function to query a naive Bayesian network
 def Query(theQuery, naiveBayes): 
     rootPdf = zeros((naiveBayes[0].shape[0]), float)
 # Coursework 1 task 5 should be inserted here
-  
+    rootPdf = naiveBayes[0]
+
+    #For each child, get the link vector associated with the given initialisation
+    for cpt in xrange(1,len(naiveBayes)):
+        rootPdf = multiply((naiveBayes[cpt])[theQuery[cpt -1]],rootPdf)
+
+    rootPdf = rootPdf / rootPdf.sum()
 
 # end of coursework 1 task 5
     return rootPdf
@@ -201,14 +229,61 @@ def PrincipalComponents(theData):
 #
 noVariables, noRoots, noStates, noDataPoints, datain = ReadFile("Neurones.txt")
 theData = array(datain)
-AppendString("results.txt","Coursework One Results by dfg")
+AppendString("results.txt","Coursework One Results by cps15")
 AppendString("results.txt","") #blank line
 AppendString("results.txt","The prior probability of node 0")
 prior = Prior(theData, 0, noStates)
+print("Prior")
+print(prior)
 AppendList("results.txt", prior)
-#
-# continue as described
-#
-#
 
+AppendString("results.txt", "The conditional probability matrix P(2|0)")
+cPT = CPT(theData,2, 0, noStates)
+print("CPT")
+print(cPT)
+AppendArray("results.txt", cPT)
+#print(cPT[:,0].sum(), cPT[:,0].sum(), cPT[:,2].sum(), cPT[:,3].sum())
+print(cPT.sum(axis = 0))
+
+AppendString("results.txt", "The joint probability matrix P(2&0)")
+jPT = JPT(theData, 2, 0, noStates)
+print("Joint")
+print(jPT)
+AppendArray("results.txt", jPT)
+print(sum(jPT))
+
+AppendString("results.txt", "The conditional probability matrix P(2|0) calculated from P(2&0)")
+cPT_formJoint = JPT2CPT(jPT)
+print("Conditional from joint")
+print(cPT_formJoint)
+AppendArray("results.txt", cPT_formJoint)
+print(cPT_formJoint.sum(axis = 0))
+
+##Create Naive Bayesian Network
+#Root node prior is prior
+ptble = [prior]
+
+#Get CPT for children->node links
+for child in xrange(1,theData.shape[1]):
+    cpt = CPT(theData, child, 0, noStates)
+    print(child, " " ,cpt)
+    ptble.append(cpt)
+
+# for child in xrange(1,theData.shape[1]):
+#     cpt = CPT(theData, child, 0, noStates)
+#     print(child, " " ,cpt[query[child-1],:])
+
+AppendString("results.txt", "Results of query [4,0,3,2,5]")
+query = [4,0,3,2,5]
+posterior = Query(query,ptble)
+print("Resulting posterior matrix from naive network with:",query)
+print(posterior, '\n')
+AppendList("results.txt",posterior)
+
+AppendString("results.txt", "Results of query [6,5,2,5,5]")
+query = [6,5,2,5,5]
+posterior = Query(query,ptble)
+print("Resulting posterior matrix from naive network with:",query)
+print(posterior, '\n')
+AppendList("results.txt",posterior)
 
