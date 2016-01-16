@@ -27,9 +27,9 @@ def CPT(theData, varC, varP, noStates):
 # Coursework 1 task 2 should be inserted here
 
     for col in xrange(noStates[varP]):
-        n = sum(theData[:,varP]== col)
+        n = count_nonzero(theData[:,varP]== col)
         for row in xrange(noStates[varC]):
-            cPT[row,col] = sum(theData[theData[:,varC]==row,varP]==col)
+            cPT[row,col] = count_nonzero(theData[theData[:,varC]==row,varP]==col)
         cPT[:,col] = cPT[:,col] / n
 
 # end of coursework 1 task 2
@@ -43,7 +43,7 @@ def JPT(theData, varRow, varCol, noStates):
 
     for col in xrange(noStates[varCol]):
         for row in xrange(noStates[varRow]):
-            jPT[row,col] = sum(theData[theData[:,varRow]==row,varCol]==col)
+            jPT[row,col] = count_nonzero(theData[theData[:,varRow]==row,varCol]==col)
 
     jPT = jPT / theData.shape[0]
     
