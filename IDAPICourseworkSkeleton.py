@@ -1,83 +1,70 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# Coursework in Python 
+# Coursework in Python
+
 from IDAPICourseworkLibrary import *
 from numpy import *
-#
+
+#######################################################################################################################
 # Coursework 1 begins here
-#
+
 # Function to compute the prior distribution of the variable root from the data set
 def Prior(theData, root, noStates):
-#    prior = zeros((noStates[root]), float )
-# Coursework 1 task 1 should be inserted here
 
-    rootData = theData[:,root]
+    root_data = theData[:,root]
     print(noStates[root] + 1)
-    prior = bincount(rootData,None, noStates[root])  / float(rootData.size)
-
-# end of Coursework 1 task 1
-    return prior
+    return bincount(root_data,None, noStates[root]) / float(root_data.size)
 
 
 # Function to compute a CPT with parent node varP and xchild node varC from the data array
 # it is assumed that the states are designated by consecutive integers starting with 0
 def CPT(theData, varC, varP, noStates):
+
     cPT = zeros((noStates[varC], noStates[varP]), float )
 
-# Coursework 1 task 2 should be inserted here
-
     for col in xrange(noStates[varP]):
-        n = count_nonzero(theData[:,varP]== col)
+        n = count_nonzero(theData[:,varP] == col)
         for row in xrange(noStates[varC]):
-            cPT[row,col] = count_nonzero(theData[theData[:,varC]==row,varP]==col)
+            cPT[row,col] = count_nonzero(theData[theData[:,varC] == row, varP] == col)
         cPT[:,col] = cPT[:,col] / n
 
-# end of coursework 1 task 2
     return cPT
 
 
 # Function to calculate the joint probability table of two variables in the data set
 def JPT(theData, varRow, varCol, noStates):
+
     jPT = zeros((noStates[varRow], noStates[varCol]), float )
-#Coursework 1 task 3 should be inserted here
 
     for col in xrange(noStates[varCol]):
         for row in xrange(noStates[varRow]):
-            jPT[row,col] = count_nonzero(theData[theData[:,varRow]==row,varCol]==col)
+            jPT[row,col] = count_nonzero(theData[theData[:,varRow] == row, varCol] == col)
 
-    jPT = jPT / theData.shape[0]
-    
-# end of coursework 1 task 3
-    return jPT
+    return jPT / theData.shape[0]
 
 
 # Function to convert a joint probability table to a conditional probability table
 def JPT2CPT(aJPT):
-#Coursework 1 task 4 should be inserted here 
-    aJPT = aJPT / aJPT.sum(axis=0)
-# coursework 1 taks 4 ends here
-    return aJPT
+
+    return aJPT / aJPT.sum(axis=0)
 
 
 # Function to query a naive Bayesian network
-def Query(theQuery, naiveBayes): 
-    rootPdf = zeros((naiveBayes[0].shape[0]), float)
-# Coursework 1 task 5 should be inserted here
-    rootPdf = naiveBayes[0]
+def Query(theQuery, naiveBayes):
+
+    root_pdf = naiveBayes[0]
 
     #For each child, get the link vector associated with the given initialisation
     for cpt in xrange(1,len(naiveBayes)):
-        rootPdf = multiply((naiveBayes[cpt])[theQuery[cpt -1]],rootPdf)
+        root_pdf = multiply((naiveBayes[cpt])[theQuery[cpt -1]],root_pdf)
 
-    rootPdf = rootPdf / rootPdf.sum()
+    return root_pdf / root_pdf.sum()
 
-# end of coursework 1 task 5
-    return rootPdf
 #
 # End of Coursework 1
-#
+#######################################################################################################################
 # Coursework 2 begins here
-#
+
 # Calculate the mutual information from the joint probability table of two variables
 def MutualInformation(jP):
     mi=0.0
@@ -102,7 +89,7 @@ def DependencyList(depMatrix):
     
 
 # end of coursework 2 task 3
-    return array(depList2)
+#   return array(depList2)
 #
 # Functions implementing the spanning tree algorithm
 # Coursework 2 task 4
@@ -113,9 +100,10 @@ def SpanningTreeAlgorithm(depList, noVariables):
     return array(spanningTree)
 #
 # End of coursework 2
-#
+
+#######################################################################################################################
 # Coursework 3 begins here
-#
+
 # Function to compute a CPT with multiple parents from he data set
 # it is assumed that the states are designated by consecutive integers starting with 0
 def CPT_2(theData, child, parent1, parent2, noStates):
@@ -168,10 +156,11 @@ def MDLAccuracy(theData, arcList, cptList):
 # Coursework 3 task 5 ends here 
     return mdlAccuracy
 #
-# End of coursework 2
-#
-# Coursework 3 begins here
-#
+# End of coursework 3
+#######################################################################################################################
+# Coursework 4 begins here
+
+
 def Mean(theData):
     realData = theData.astype(float)
     noVariables=theData.shape[1] 
@@ -224,9 +213,10 @@ def PrincipalComponents(theData):
     # Coursework 4 task 6 ends here
     return array(orthoPhi)
 
-#
-# main program part for Coursework 1
-#
+#######################################################################################################################
+#######################################################################################################################
+# Main program part for Coursework 1
+
 noVariables, noRoots, noStates, noDataPoints, datain = ReadFile("Neurones.txt")
 theData = array(datain)
 AppendString("results.txt","Coursework One Results by cps15")
@@ -278,3 +268,4 @@ query = [6,5,2,5,5]
 posterior = Query(query,ptble)
 AppendList("results.txt",posterior)
 
+#######################################################################################################################
