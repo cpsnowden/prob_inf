@@ -262,28 +262,19 @@ print(cPT_formJoint.sum(axis = 0))
 ##Create Naive Bayesian Network
 #Root node prior is prior
 ptble = [prior]
-
 #Get CPT for children->node links
 for child in xrange(1,theData.shape[1]):
     cpt = CPT(theData, child, 0, noStates)
     print(child, " " ,cpt)
     ptble.append(cpt)
 
-# for child in xrange(1,theData.shape[1]):
-#     cpt = CPT(theData, child, 0, noStates)
-#     print(child, " " ,cpt[query[child-1],:])
-
 AppendString("results.txt", "Results of query [4,0,3,2,5]")
 query = [4,0,3,2,5]
 posterior = Query(query,ptble)
-print("Resulting posterior matrix from naive network with:",query)
-print(posterior, '\n')
 AppendList("results.txt",posterior)
 
 AppendString("results.txt", "Results of query [6,5,2,5,5]")
 query = [6,5,2,5,5]
 posterior = Query(query,ptble)
-print("Resulting posterior matrix from naive network with:",query)
-print(posterior, '\n')
 AppendList("results.txt",posterior)
 
